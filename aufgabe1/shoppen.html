@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>Einkauf</title>
+  
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+    <style>
+        th, td  {
+            padding: 15px;
+            text-align: center;
+            border: 1px solid black;
+        }
+
+        #product{
+            max-width: 600px;
+            float: left;
+            padding: 100px;
+        }
+
+    </style>
+
+</head>
+<body>
+<div>
+    <div id="product">
+        <app-products></app-products>
+    </div>
+
+    <div id="korb">
+        <table border="1">
+            <thead>
+            <tr>
+                <th>Produkt</th>
+                <th>Menge</th>
+                <th>Preis</th>
+                <th>MwSt</th>
+                <th>Gesamt</th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody>
+
+            <tr v-for="(item, index) in korb">
+                <td>{{ item.Bezeichnung }}</td>
+                <td><input type="number" min="0"  step="1" style="width: 50px" v-model="item.menge"></td>
+                <td>{{ myRound(item.preis) }}</td>
+                <td>{{ myRound(item.menge * item.preis*0.19) }}</td>
+                <td>{{ myRound(item.menge * item.preis*1.19) }}</td>
+                <td><button @click="deleteItem(index)">Löschen</button></td>
+            </tr>
+            <tr>
+                <th colspan="4">Gesamtpreis</th>
+                <td>{{ myRound(gesamtpreis) }}</td>
+                <td></td>
+            </tr>
+
+            </tbody>
+        </table>
+    </div>
+</div>
+<script>
+
+
+    Vue.component('app-products', {
+        data: function(){
+            return {
+                products: [
+                    {Bezeichnung: 'Prod1', preis: 10.50, menge: 1},
+                    {Bezeichnung: 'Prod2', preis: 20.50, menge: 1},
+                    {Bezeichnung: 'Prod3', preis: 30.50, menge: 1}
+                ]
+            }
+        },
+        template: `<div>
+                        <div v-for="product in products">
+                            <p>Produktname: {{product.Bezeichnung }} 
+                                <button @click="addItem(product)">In den Warenkorb legen</button>
+                            </p>
+                        </div>
+                   </div>`,
+
+        methods: {
+            addItem(product){
+
+                for (var i = 0; i < app.korb.length; i++) {
+                    if (app.korb[i].Bezeichnung===product.Bezeichnung) return;
+                }
+
+                product.menge=1;
+                app.korb.push(product);
+            }
+
+        }
+    });
+
+
+    var app = new Vue({
+        el: '#korb',
+        data: {
+            korb: []
+        },
+        computed: {
+            gesamtpreis: function() {
+                return this.korb.reduce( (kommuliert, aktuell) => kommuliert + (aktuell.menge * aktuell.preis)*1.19, 0 );
+            }
+        },
+        methods: {
+            deleteItem(index) {
+                this.korb.splice(index, 1);
+            },
+
+            myRound(numb){
+                var rounded = Math.round((numb + Number.EPSILON) * 100) / 100;
+                return rounded;
+            }
+
+
+    }
+
+    })
+
+    var product=  new Vue({
+        el: '#product'
+    });
+
+</script>
+
+</body>
+</html>
